@@ -434,7 +434,6 @@ else
 fi
 
 if build "av1"; then
-	#~ download "https://aomedia.googlesource.com/aom/+archive/60a00de69ca79fe5f51dcbf862aaaa8eb50ec344.tar.gz" "av1.tar.gz" "av1"
 	execute git clone https://aomedia.googlesource.com/aom
 	mv -vf aom $PACKAGES/av1
 	cd $PACKAGES/av1 || exit
@@ -450,142 +449,138 @@ if build "av1"; then
 	build_done "av1"
 fi
 
-if [[ -n $FAST_BUILD ]]; then
-	echo 'continuining with pre-built packages...'
-else
-	if build "zlib"; then
-		download "https://www.zlib.net/zlib-1.2.11.tar.gz" "zlib-1.2.11.tar.gz"
-		cd $PACKAGES/zlib-1.2.11 || exit
-		execute ./configure --prefix=${WORKSPACE}
-		execute make -j $MJOBS
-		execute make install
-		build_done "zlib"
-	fi
+#~ if [[ -n $FAST_BUILD ]]; then
+	#~ echo 'continuining with pre-built packages...'
+#~ else
+	#~ if build "zlib"; then
+		#~ download "https://www.zlib.net/zlib-1.2.11.tar.gz" "zlib-1.2.11.tar.gz"
+		#~ cd $PACKAGES/zlib-1.2.11 || exit
+		#~ execute ./configure --prefix=${WORKSPACE}
+		#~ execute make -j $MJOBS
+		#~ execute make install
+		#~ build_done "zlib"
+	#~ fi
 	
-	if build "openssl"; then
-		download "https://www.openssl.org/source/openssl-1.1.1d.tar.gz" "openssl-1.1.1d.tar.gz"
-		cd $PACKAGES/openssl-1.1.1d || exit
-		execute ./config --prefix=${WORKSPACE} --openssldir=${WORKSPACE} --with-zlib-include=${WORKSPACE}/include/ --with-zlib-lib=${WORKSPACE}/lib no-shared zlib
-		execute make -j $MJOBS
-		execute make install
-		build_done "openssl"
-	fi
+	#~ if build "openssl"; then
+		#~ download "https://www.openssl.org/source/openssl-1.1.1d.tar.gz" "openssl-1.1.1d.tar.gz"
+		#~ cd $PACKAGES/openssl-1.1.1d || exit
+		#~ execute ./config --prefix=${WORKSPACE} --openssldir=${WORKSPACE} --with-zlib-include=${WORKSPACE}/include/ --with-zlib-lib=${WORKSPACE}/lib no-shared zlib
+		#~ execute make -j $MJOBS
+		#~ execute make install
+		#~ build_done "openssl"
+	#~ fi
 	
 	
-	if build "freetype"; then
-		download "https://download.savannah.gnu.org/releases/freetype/freetype-2.10.0.tar.bz2" "freetype-2.10.0.tar.bz2"
-		cd $PACKAGES/freetype-2.10.0 || exit
-		execute ./autogen.sh --prefix=${WORKSPACE} --libdir=${WORKSPACE}/lib --enable-static --disable-shared
-		execute ./configure --prefix=${WORKSPACE} -with-pc-path=${WORKSPACE}/lib/pkgconfig --libdir=${WORKSPACE}/lib --enable-static --disable-shared
-		execute make -j $MJOBS
-		execute make install
-		build_done "freetype"
-	fi
-fi
+	#~ if build "freetype"; then
+		#~ download "https://download.savannah.gnu.org/releases/freetype/freetype-2.10.0.tar.bz2" "freetype-2.10.0.tar.bz2"
+		#~ cd $PACKAGES/freetype-2.10.0 || exit
+		#~ execute ./autogen.sh --prefix=${WORKSPACE} --libdir=${WORKSPACE}/lib --enable-static --disable-shared
+		#~ execute ./configure --prefix=${WORKSPACE} -with-pc-path=${WORKSPACE}/lib/pkgconfig --libdir=${WORKSPACE}/lib --enable-static --disable-shared
+		#~ execute make -j $MJOBS
+		#~ execute make install
+		#~ build_done "freetype"
+	#~ fi
+#~ fi
 
-if [[ -n $BUILD_SVT ]]; then
-	if build "svt_av1"; then
-		execute git clone https://github.com/OpenVisualCloud/SVT-AV1/
-		mv -vf SVT-AV1 $PACKAGES/SVT-AV1
-		cd $PACKAGES/SVT-AV1 || exit
-		execute ./Build/linux/build.sh jobs=${NUMJOBS} --no-dec --static --prefix ${WORKSPACE} 
-		execute cp Bin/Release/SvtAv1EncApp ${WORKSPACE}/bin
-		execute cp Bin/Release/libSvtAv1Enc.a ${WORKSPACE}/lib
-		execute cp ffmpeg_plugin/0001-Add-ability-for-ffmpeg-to-run-svt-av1.patch $PACKAGES
-		ADDITIONAL_CONFIGURE_OPTIONS+=" --enable-libsvtav1 "
-		build_done "svt_av1"
-	fi
-fi
+#~ if [[ -n $BUILD_SVT ]]; then
+	#~ if build "svt_av1"; then
+		#~ execute git clone https://github.com/OpenVisualCloud/SVT-AV1/
+		#~ mv -vf SVT-AV1 $PACKAGES/SVT-AV1
+		#~ cd $PACKAGES/SVT-AV1 || exit
+		#~ execute ./Build/linux/build.sh jobs=${NUMJOBS} --no-dec --static --prefix ${WORKSPACE} 
+		#~ execute cp Bin/Release/SvtAv1EncApp ${WORKSPACE}/bin
+		#~ execute cp Bin/Release/libSvtAv1Enc.a ${WORKSPACE}/lib
+		#~ execute cp ffmpeg_plugin/0001-Add-ability-for-ffmpeg-to-run-svt-av1.patch $PACKAGES
+		#~ ADDITIONAL_CONFIGURE_OPTIONS+=" --enable-libsvtav1 "
+		#~ build_done "svt_av1"
+	#~ fi
+#~ fi
 
-if [[ -n $BUILD_RAV1E ]]; then
-	if build "rav1e"; then	
-		rm -rf ~/.rustup ~/.cargo
-		curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-		source $HOME/.cargo/env
-		execute cargo install cargo-c
-		execute git clone https://www.github.com/xiph/rav1e
-		mv -vf rav1e $PACKAGES/rav1e
-		cd $PACKAGES/rav1e || exit
-		#~ RUSTFLAGS="-C target-cpu=native" cargo build --release
-		RUSTFLAGS="-C target-cpu=native" cargo cinstall --release --prefix=${WORKSPACE} --libdir=${WORKSPACE}/lib --includedir=${WORKSPACE}/include --pkgconfigdir=="$WORKSPACE/lib/pkgconfig"
-		rm -vf ${WORKSPACE}/lib/librav1e.so*
-		rm -rf ~/.rustup ~/.cargo
-		ADDITIONAL_CONFIGURE_OPTIONS+=" --enable-librav1e "
-		build_done "rav1e"
-	fi
-fi
+#~ if [[ -n $BUILD_RAV1E ]]; then
+	#~ if build "rav1e"; then	
+		#~ rm -rf ~/.rustup ~/.cargo
+		#~ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+		#~ source $HOME/.cargo/env
+		#~ execute cargo install cargo-c
+		#~ execute git clone https://www.github.com/xiph/rav1e
+		#~ mv -vf rav1e $PACKAGES/rav1e
+		#~ cd $PACKAGES/rav1e || exit
+		#~ RUSTFLAGS="-C target-cpu=native" cargo cinstall --release --prefix=${WORKSPACE} --libdir=${WORKSPACE}/lib --includedir=${WORKSPACE}/include --pkgconfigdir=="$WORKSPACE/lib/pkgconfig"
+		#~ rm -vf ${WORKSPACE}/lib/librav1e.so*
+		#~ rm -rf ~/.rustup ~/.cargo
+		#~ ADDITIONAL_CONFIGURE_OPTIONS+=" --enable-librav1e "
+		#~ build_done "rav1e"
+	#~ fi
+#~ fi
 
-build "ffmpeg"
-#~ download "https://git.ffmpeg.org/gitweb/ffmpeg.git/snapshot/6023b9fbfef02b71f6acfb1b09e5a12fe9d276e2.tar.gz" "ffmpeg-snapshot.tar.bz2"
-if [[ ! -d packages/ffmpeg/ ]]; then
-	execute  git clone https://github.com/FFmpeg/FFmpeg
-	mv -vf FFmpeg $PACKAGES/ffmpeg/
-fi
-cd $PACKAGES/ffmpeg/ || exit
+#~ build "ffmpeg"
+#~ if [[ ! -d packages/ffmpeg/ ]]; then
+	#~ execute  git clone https://github.com/FFmpeg/FFmpeg
+	#~ mv -vf FFmpeg $PACKAGES/ffmpeg/
+#~ fi
+#~ cd $PACKAGES/ffmpeg/ || exit
 
-if [[ -n $BUILD_SVT ]]; then
-	mv -vf $PACKAGES/0001-Add-ability-for-ffmpeg-to-run-svt-av1.patch .
-	git apply 0001-Add-ability-for-ffmpeg-to-run-svt-av1.patch
-fi
+#~ if [[ -n $BUILD_SVT ]]; then
+	#~ mv -vf $PACKAGES/0001-Add-ability-for-ffmpeg-to-run-svt-av1.patch .
+	#~ git apply 0001-Add-ability-for-ffmpeg-to-run-svt-av1.patch
+#~ fi
 
-./configure $ADDITIONAL_CONFIGURE_OPTIONS \
-    --pkgconfigdir="$WORKSPACE/lib/pkgconfig" \
-    --prefix=${WORKSPACE} \
-    --pkg-config-flags="--static" \
-    --extra-cflags="-I$WORKSPACE/include" \
-    --extra-ldflags="-L$WORKSPACE/lib" \
-    --extra-libs="-lpthread -lm" \
-	--enable-static \
-	--disable-debug \
-	--disable-shared \
-	--disable-ffplay \
-	--disable-doc \
-	--enable-openssl \
-	--enable-gpl \
-	--enable-version3 \
-	--enable-nonfree \
-	--enable-pthreads \
-	--enable-libvpx \
-	--enable-libmp3lame \
-	--enable-libopus \
-	--enable-libtheora \
-	--enable-libvorbis \
-	--enable-libxvid \
-	--enable-libx264 \
-	--enable-libx265 \
-	--enable-runtime-cpudetect \
-	--enable-libfdk-aac \
-	--enable-avfilter \
-	--enable-libopencore_amrwb \
-	--enable-libopencore_amrnb \
-	--enable-filters \
-	--enable-libaom \
-	--enable-libfreetype \
-	--enable-filter=drawtext 
-	#~ --enable-libvidstab \
+#~ ./configure $ADDITIONAL_CONFIGURE_OPTIONS \
+    #~ --pkgconfigdir="$WORKSPACE/lib/pkgconfig" \
+    #~ --prefix=${WORKSPACE} \
+    #~ --pkg-config-flags="--static" \
+    #~ --extra-cflags="-I$WORKSPACE/include" \
+    #~ --extra-ldflags="-L$WORKSPACE/lib" \
+    #~ --extra-libs="-lpthread -lm" \
+	#~ --enable-static \
+	#~ --disable-debug \
+	#~ --disable-shared \
+	#~ --disable-ffplay \
+	#~ --disable-doc \
+	#~ --enable-openssl \
+	#~ --enable-gpl \
+	#~ --enable-version3 \
+	#~ --enable-nonfree \
+	#~ --enable-pthreads \
+	#~ --enable-libvpx \
+	#~ --enable-libmp3lame \
+	#~ --enable-libopus \
+	#~ --enable-libtheora \
+	#~ --enable-libvorbis \
+	#~ --enable-libxvid \
+	#~ --enable-libx264 \
+	#~ --enable-libx265 \
+	#~ --enable-runtime-cpudetect \
+	#~ --enable-libfdk-aac \
+	#~ --enable-avfilter \
+	#~ --enable-libopencore_amrwb \
+	#~ --enable-libopencore_amrnb \
+	#~ --enable-filters \
+	#~ --enable-libaom \
+	#~ --enable-libfreetype \
+	#~ --enable-filter=drawtext 
 
 
 	
 	
 	
 
-execute_verbose make -j $MJOBS
-#~ execute make -j $MJOBS
-execute make install
+#~ execute_verbose make -j $MJOBS
+#~ execute make install
 
-    INSTALL_FOLDER="/usr/bin"
-if [[ "$OSTYPE" == "darwin"* ]]; then
-INSTALL_FOLDER="/usr/local/bin"
-fi
+    #~ INSTALL_FOLDER="/usr/bin"
+#~ if [[ "$OSTYPE" == "darwin"* ]]; then
+#~ INSTALL_FOLDER="/usr/local/bin"
+#~ fi
 
-echo ""
-echo "Building done. The binary can be found here: $WORKSPACE/bin/ffmpeg"
-echo ""
+#~ echo ""
+#~ echo "Building done. The binary can be found here: $WORKSPACE/bin/ffmpeg"
+#~ echo ""
 
-echo "Uploading ffmpeg binary to bashupload..."
+#~ echo "Uploading ffmpeg binary to bashupload..."
 
-cd $WORKSPACE/bin/
-curl "https://bashupload.com/ffmpeg" --data-binary @ffmpeg; 
+#~ cd $WORKSPACE/bin/
+#~ curl "https://bashupload.com/ffmpeg" --data-binary @ffmpeg; 
 
 
 
