@@ -215,23 +215,23 @@ if [[ -n $USE_CLANG ]]; then
 		#~ sudo update-alternatives  --install /usr/bin/gcc gcc /usr/bin/clang-9 100;
         echo 'INSTALLING CLANG-9 ...'
         #~ echo 'deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-9 main' >/tmp/myppa.list
-        echo 'deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-12 main' >/tmp/myppa.list
+        echo 'deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-10 main' >/tmp/myppa.list
         sudo cp /tmp/myppa.list /etc/apt/sources.list.d/
         wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key|sudo apt-key add -
         sudo apt update -y -qq > /dev/null 2> /dev/null
         #~ sudo apt install clang-9 -y -qq > /dev/null 2> /dev/null
-        sudo apt install clang-12 -y -qq > /dev/null 2> /dev/null
+        sudo apt install clang-10 -y -qq > /dev/null 2> /dev/null
         sudo apt-get --purge remove gcc-6 gcc-7 -y   -qq > /dev/null 2> /dev/null
         #~ sudo update-alternatives  --install  /usr/bin/cpp cpp /usr/bin/clang++-9 100;
         #~ sudo update-alternatives  --install /usr/bin/c++ c++ /usr/bin/clang++-9 100;
         #~ sudo update-alternatives  --install /usr/bin/g++ g++ /usr/bin/clang++-9 100;
         #~ sudo update-alternatives  --install /usr/bin/cc cc /usr/bin/clang-9 100;
         #~ sudo update-alternatives  --install /usr/bin/gcc gcc /usr/bin/clang-9 100;
-        sudo update-alternatives  --install  /usr/bin/cpp cpp /usr/bin/clang++-12 100;
-        sudo update-alternatives  --install /usr/bin/c++ c++ /usr/bin/clang++-12 100;
-        sudo update-alternatives  --install /usr/bin/g++ g++ /usr/bin/clang++-12 100;
-        sudo update-alternatives  --install /usr/bin/cc cc /usr/bin/clang-12 100;
-        sudo update-alternatives  --install /usr/bin/gcc gcc /usr/bin/clang-12 100;
+        sudo update-alternatives  --install  /usr/bin/cpp cpp /usr/bin/clang++-10 100;
+        sudo update-alternatives  --install /usr/bin/c++ c++ /usr/bin/clang++-10 100;
+        sudo update-alternatives  --install /usr/bin/g++ g++ /usr/bin/clang++-10 100;
+        sudo update-alternatives  --install /usr/bin/cc cc /usr/bin/clang-10 100;
+        sudo update-alternatives  --install /usr/bin/gcc gcc /usr/bin/clang-10 100;
 	#~ fi
 fi
 
