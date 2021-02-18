@@ -59,7 +59,7 @@ jobs:
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: workspace/bin/aomenc
-        asset_name: ffprobe
+        asset_name: aomenc 
         asset_content_type: application/octet-stream
 
     #~ - name: Archive ffmpeg binary
